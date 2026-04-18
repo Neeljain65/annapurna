@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  phoneNumber String    @unique
+  createdAt   DateTime  @default(now())
+  name        String
+  isFirstTime Boolean   @default(true)
+  budgets     Budget[]
+  expenses    Expense[]
+  sessions    Session[]
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastMessage  String?
+  currentState String?
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+model Expense {
+  id             String   @id @default(uuid())
+  userId         String
+  amount         Float
+  category       String
+  date           DateTime @default(now())
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+  description    String?
+  rawText        String?
+  source         String
+  structuredData Json?
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Budget {
+  id             String   @id @default(uuid())
+  userId         String
+  category       String
+  amount         Float
+  period         String
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  alertThreshold Float    @default(0.8)
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, category, period, startDate])
+}
