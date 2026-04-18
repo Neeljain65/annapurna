@@ -316,20 +316,15 @@ Keep tracking! Send another expense or type 'help' for more options. 📊${dashb
                 }
             );
 
-            // console.log("Auth response:", response.data);
-
             if (!response.data.success) {
-                await sendWhatsApp(
-                    phone,
-                    "❌ Failed to generate dashboard link. Please try again later."
-                );
+                return "❌ Failed to generate dashboard link. Please try again later.";
             }
+
+            // Return null — whatsapp-login already sent the link via WhatsApp
+            return null;
         } catch (error) {
             console.error("Dashboard link generation failed:", error);
-            await sendWhatsApp(
-                phone,
-                "❌ Sorry, there was an error generating your dashboard link. Please try again later."
-            );
+            return "❌ Sorry, there was an error generating your dashboard link. Please try again later.";
         }
     }
 

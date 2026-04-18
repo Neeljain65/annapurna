@@ -19,6 +19,11 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Mount routes at both /api/* (for Digital Ocean) and /* (for local dev)
+app.use("/api/webhook", webhookRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/expenses", expensesRoutes);
+
 app.use("/webhook", webhookRoutes);
 app.use("/auth", authRoutes);
 app.use("/expenses", expensesRoutes);
@@ -30,12 +35,36 @@ app.get("/", (req, res) => {
     });
 });
 
+app.get("/api", (req, res) => {
+    res.json({
+        message: "Server is running",
+        timestamp: new Date().toISOString(),
+    });
+});
+
+app.get("/api/health", (req, res) => {
+    res.json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        message: "Server is up and running",
+    });
+});
+
 app.get("/health", (req, res) => {
     res.json({
         status: "ok",
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         message: "Server is up and running",
+    });
+});
+
+app.get("/api/keep-alive", (req, res) => {
+    res.json({
+        status: "alive",
+        timestamp: new Date().toISOString(),
+        message: "Keep-alive ping successful",
     });
 });
 

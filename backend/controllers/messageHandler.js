@@ -226,7 +226,10 @@ Great! I can see you've successfully joined our WhatsApp expense tracker!
                         prisma
                     );
 
-                    await sendWhatsApp(phoneNumber, response);
+                    // Some commands (like dashboard) handle their own messaging and return null
+                    if (response) {
+                        await sendWhatsApp(phoneNumber, response);
+                    }
                     const twiml = new MessagingResponse();
                     res.type("text/xml");
                     return res.send(twiml.toString());
