@@ -4,6 +4,7 @@ const cors = require("cors");
 const webhookRoutes = require("./routes/webhook");
 const authRoutes = require("./routes/auth");
 const expensesRoutes = require("./routes/expenses");
+const vendorsRoutes = require("./routes/vendors");
 const cron = require("node-cron");
 const app = express();
 
@@ -23,10 +24,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/webhook", webhookRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expensesRoutes);
+app.use("/api/vendors", vendorsRoutes);
 
 app.use("/webhook", webhookRoutes);
 app.use("/auth", authRoutes);
 app.use("/expenses", expensesRoutes);
+app.use("/vendors", vendorsRoutes);
 
 app.get("/", (req, res) => {
     res.json({
@@ -105,6 +108,29 @@ if (
 } else {
     console.log("Keep-alive disabled in development mode");
 }
+
+const DailySalesService = require("./utils/dailySales");
+
+// ─── 8:30 PM IST Cash Collection Cron Job ───
+// Runs every day at 8:30 PM IST (15:00 UTC) to ask users for daily cash collection
+cron.schedule(
+    "30 20 * * *",
+    async () => {
+        console.log(
+            `💰 Cash collection cron triggered at ${new Date().toISOString()}`
+        );
+        try {
+            await DailySalesService.sendCashCollectionPrompts();
+        } catch (error) {
+            console.error("Cash collection cron error:", error.message);
+        }
+    },
+    {
+        timezone: "Asia/Kolkata",
+    }
+);
+
+console.log("⏰ Cash collection cron scheduled for 8:30 PM IST daily");
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);

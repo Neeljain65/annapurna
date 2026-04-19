@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  phoneNumber String    @unique
-  createdAt   DateTime  @default(now())
-  name        String
-  isFirstTime Boolean   @default(true)
-  budgets     Budget[]
-  expenses    Expense[]
-  sessions    Session[]
+  id              String           @id @default(uuid())
+  phoneNumber     String           @unique
+  createdAt       DateTime         @default(now())
+  name            String
+  isFirstTime     Boolean          @default(true)
+  budgets         Budget[]
+  expenses        Expense[]
+  sessions        Session[]
+  vendorPayments  VendorPayment[]
+  cashDeposits    CashDeposit[]
+  dailySales      DailySales[]
 }
 
 model Session {
@@ -59,4 +62,55 @@ model Budget {
   user           User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, category, period, startDate])
+}
+
+model VendorPayment {
+  id            String    @id @default(uuid())
+  userId        String
+  vendorName    String
+  amount        Float
+  date          DateTime  @default(now())
+  refBillNo     String?
+  paymentMode   String?
+  notes         String?
+  status        String    @default("paid")
+  rawText       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, vendorName])
+  @@index([userId, date])
+}
+
+model CashDeposit {
+  id          String   @id @default(uuid())
+  userId      String
+  amount      Float
+  date        DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model DailySales {
+  id              String   @id @default(uuid())
+  userId          String
+  date            DateTime
+  totalExpenses   Float    @default(0)
+  totalVendor     Float    @default(0)
+  cashCollected   Float    @default(0)
+  openingBalance  Float    @default(0)
+  salesAmount     Float    @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+  @@index([userId, date])
 }

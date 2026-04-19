@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 const MessagingResponse = require("twilio").twiml.MessagingResponse;
 
 const messageRateLimit = new Map();
-const MAX_DAILY_MESSAGES = 10;
+const MAX_DAILY_MESSAGES = 100;
 const DAILY_WINDOW = 24 * 60 * 60 * 1000;
 
 setInterval(() => {
